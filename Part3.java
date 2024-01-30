@@ -1,18 +1,17 @@
-
-public class Part1 {
+public class Part3 {
 
     public int findStopCodon(String dna, int startIndex, String stopCodon) {
         int index = 0;
         int startPosition = startIndex + 3;
         while (index != -1) {
             index = dna.indexOf(stopCodon, startPosition);
-            if (index % 3 == 0) {
+            if ((index - startIndex) % 3 == 0) {
                 return index;
             }
             startPosition = index + 1;
         }
 
-        return dna.length();
+        return index;
     }
 
     public void testFindStopCodon() {
@@ -23,21 +22,23 @@ public class Part1 {
     }
 
     public String findGene(String dna) {
-        int startCodon = dna.indexOf("atg");
+        int startCodon = dna.indexOf("ATG");
+        System.out.println("Start" + startCodon);
         if (startCodon == -1) {
             return "";
         }
-        int stopCodonTAA = findStopCodon(dna, startCodon, "taa");
-        int stopCodonTAG = findStopCodon(dna, startCodon, "tag");
-        int stopCodonTGA = findStopCodon(dna, startCodon, "tga");
+        int stopCodonTAA = findStopCodon(dna, startCodon, "TAA");
+        int stopCodonTAG = findStopCodon(dna, startCodon, "TAG");
+        int stopCodonTGA = findStopCodon(dna, startCodon, "TGA");
         int stopCodon = 0;
-        if (stopCodonTAA > stopCodonTAG && stopCodonTAA > stopCodonTGA) {
+        if (stopCodonTAA < stopCodonTAG && stopCodonTAA < stopCodonTGA && stopCodonTAA != -1) {
             stopCodon = stopCodonTAA;
-        } else if (stopCodonTAG > stopCodonTAA && stopCodonTAG > stopCodonTGA) {
+        } else if (stopCodonTAG < stopCodonTAA && stopCodonTAG < stopCodonTGA && stopCodonTAG != -1) {
             stopCodon = stopCodonTAG;
         } else {
             stopCodon = stopCodonTGA;
         }
+        System.out.println("End" + stopCodon);
         // If there is no gene
         if (stopCodon == -1) {
             return "";
@@ -57,7 +58,7 @@ public class Part1 {
         // Does not have TGA
         System.out.println("Should be atgcagtaagtttag -> " + findGene("ctccagctagcctgaatgcagtaagtttagat"));
         // Does not have TAG
-        System.out.println("Should be atgcagtaagtttag -> " + findGene("ctccagctagcctgaatgcagtaagtttactga"));
+        System.out.println("Should be atgcagtaagtttag -> " + findGene("ctccagctagcctgaatgcagtaagtttagtga"));
     }
 
     public void printAllGenes(String dna) {
@@ -71,5 +72,30 @@ public class Part1 {
             System.out.println(currGene);
             dnaLeft = dnaLeft.substring(currGene.length());
         }
+    }
+
+    public int countGenes(String dna) {
+        String dnaLeft = dna;
+        int numOfGenes = 0;
+        String currGene = "";
+        while (dnaLeft != "") {
+            currGene = findGene(dnaLeft);
+            if (currGene == "") {
+                dnaLeft = "";
+            } else {
+                numOfGenes = numOfGenes + 1;
+                dnaLeft = dnaLeft.substring(currGene.length());
+            }
+        }
+        return numOfGenes;
+    }
+
+    public void testCountGenes() {
+        // Has 2
+        System.out.println("Should have 2 -> " + countGenes("atggatccttaatgatgagacggta"));
+        // Does not have
+        System.out.println("Should not have any -> " + countGenes("ctccagatgctagcctcaggtttagat"));
+        // Has 1
+        System.out.println("Should have 1 -> " + countGenes("ctccagatgctagcctgacagtaggtttagat"));
     }
 }
